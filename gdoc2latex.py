@@ -76,7 +76,7 @@ if bolditalics:
 
 if underlined:
     u = re.compile(r'<span class="'+underlined+'">(.*?)</span>')
-    html = u.sub(r'\\underline{\\textbf{\1}}', html)
+    html = u.sub(r'\\underline{\1}', html)
 
 if codetext:
     code = re.compile(r'<span class="'+codetext+'">(.*?)</span>')
@@ -180,14 +180,7 @@ html = re.sub(r'<a href="#ftnt\d+.*?</a>', r'', html)
 html = re.sub(r'<a href="#cmnt\d+.*?</a>', r'', html)
 
 
-#delete footnotes and comments at the end
-#problem: it also deletes it in the actual footnotes
-
-# ftnt_del = re.compile(r'<p class="(c\d+\s?)+"><a href="#ftnt_ref(\d+?)" id.*?</p>')
-# cmnt_del = re.compile(r'<p class="(c\d+\s?)+"><a href="#cmnt_ref(\d+?)" id.*?</p>')
-# html = ftnt_del.sub(r'', html)
-# html = cmnt_del.sub(r'', html)
-
+#TODO: delete footnotes and comments at the end?
 
 #------------------------------------
 #-------------- LISTS ---------------
@@ -211,8 +204,7 @@ html = re.sub(r'<tr.*?>(.+?)</td></tr>', r'\n\1 \\\\', html)
 html = re.sub(r'</td>', r' &', html)
 html = re.sub(r'<td class=.+?>', r'', html)
 
-# delete <p> elmts in cells?
-
+#TODO: delete <p> elmts in cells?
 
 #------------------------------------
 #-------------- LINKS ---------------
@@ -233,7 +225,7 @@ html = re.sub(r'&lt;',r'<',html)
 html = re.sub(r'&gt;',r'>',html)
 
 
-new_gdoc_path = 'LATEX-'+filename+'.txt'
+new_gdoc_path = 'LATEX-'+filename+'.tex'
 
 #save
 with open(new_gdoc_path, 'w', encoding='utf-8') as outfile:
