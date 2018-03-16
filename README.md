@@ -33,7 +33,7 @@ You will need to resize the images in the LaTeX, so don't waste too much time in
 ## Footnotes
 Footnotes and comments have the same structure in the HTML: in the text, there is a `<sup>` element that contains the link to the footnote/comment, for instance `<sup><a href="#ftnt1" id="ftnt_ref1">[1]</a></sup>`. At the end of the documents there will be a paragraph with the corresponding link, `<p class="..."><a href="#ftnt_ref1" id="ftnt1">[1]</a>...</p>`.
 
-It was a bit tricky to deal with footnotes with just regular expression (here an XSLT transformation might come useful)! I managed to improvise something that worked for me. You may want to check that you have the right number of footnotes.
+It was a bit tricky to deal with footnotes with just regular expression (here ElementTree might come useful)! I managed to improvise something that worked for me. You may want to check that you have the right number of footnotes.
 
 I didn't include comments, but in theory the code for footnotes could be adapted for comments as well.
 
@@ -56,6 +56,6 @@ Finally, any link still present is also converted. For instance `<a class="..." 
 
 ---
 
-That's it! 
+Obviously it's not a perfect solution, but I was in a hurry because the thesis deadline was approaching fast! There's probably much to improve here (maybe with eTree) for footnotes/comments, and for finding layout classes automatically.
 
 After you've done the transformation, there are some little things to take care of: delete the text of footnotes and comments left over at the end of the document. If you had included a table of content in the gdoc, delete also the links. Now you can spend time to arrange your tables and images. And of course, add cross-references and bibliographic citations if needed.
