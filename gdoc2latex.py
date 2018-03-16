@@ -7,18 +7,18 @@ import sys
 #---------- set variables -----------
 
 #layout classes
-italics = 'c1'
+italics = 'c18'
 bold = ''
 bolditalics = ''
 underlined = ''
 quotations = ''
-codetext = ''
+codetext = 'c12'
 
 #chapter
-chapternb = '5'
+chapternb = '6'
 
 #file
-filename = '3-1-test-case'
+filename = '3-2-xml'
 
 #------------------------------------
 #---------- load html file ----------
@@ -37,6 +37,9 @@ html = head.sub(r'', html)
     
 #------------------------------------
 #-------- TITLES & HEADINGS ---------
+
+title = re.compile(r'<p class=".*?title" id=".+?">(.*?)</p>')
+html = title.sub(r'\\chapter{\1}', html)
 
 h1 = re.compile(r'<h1.*?>(.*?)</h1>')
 html = h1.sub(r'\n\\section{\1}', html)
@@ -57,7 +60,7 @@ html = h5.sub(r'\n\\subparagraph{\1}', html)
 #------------------------------------
 #----- italics/bold/underlined ------
 
-#ATTENTION: check span class number for each document.
+#ATTENTION: check span and paragraph class number for each document.
 
 if italics:
     i = re.compile(r'<span class="'+italics+'">(.*?)</span>')
@@ -89,36 +92,37 @@ if quotations:
 #whitespace
 html = re.sub(r'&nbsp;',r' ',html)
 
-#quotation marks
+#quotation marks, apostrophe
 html = re.sub(r'&quot;',r"'",html)
-html = re.sub(r'&ldquo;',r"'",html)
 html = re.sub(r'&rdquo;',r"'",html)
 html = re.sub(r'&rsquo;',r"'",html)
 html = re.sub(r'&#39;',r"'",html)
 
+html = re.sub(r'&ldquo;',r"`",html)
 html = re.sub(r'&rlquo;',r"`",html)
 html = re.sub(r'&lsquo;',r"`",html)
 
 #dashes
 html = re.sub(r'&mdash;',r'---',html)
-html = re.sub(r'&ndash;',r'---',html)
+html = re.sub(r'&ndash;',r'-',html)
 
 #accents
-html = re.sub(r'&aring;',r'{\\aa}',html)#a hakanson
-html = re.sub(r'&ccedil;',r'\c{c}',html)
+html = re.sub(r'&aring;',r'{\\aa}',html)  #a hakanson
+html = re.sub(r'&ccedil;',r'\c{c}',html)  #c cedille
 html = re.sub(r'&eacute;',r'é',html)
 html = re.sub(r'&oacute;',r'ó',html)
 html = re.sub(r'&iacute;',r'í',html)
 html = re.sub(r'&aacute;',r'á',html)
 html = re.sub(r'&ecirc;',r'ê',html)
 html = re.sub(r'&acirc;',r'â',html)
+html = re.sub(r'&ocirc;',r'ô',html)
 html = re.sub(r'&egrave;',r'è',html)
 html = re.sub(r'&auml;',r'ä',html)
 html = re.sub(r'&Auml;',r'Ä',html)
 html = re.sub(r'&ouml;',r'ö',html)
 html = re.sub(r'&uuml;',r'ü',html)
 html = re.sub(r'&euml;',r'ë',html)
-html = re.sub(r'&szlig;',r'{\ss}',html)#german sharp s
+html = re.sub(r'&szlig;',r'{\ss}',html)  #german sharp s
 html = re.sub(r'&agrave;',r'à',html)
 html = re.sub(r'&igrave;',r'ì',html)
 html = re.sub(r'&ograve;',r'ò',html)
@@ -130,15 +134,16 @@ html = re.sub(r'&esect;',r'§',html)
 html = re.sub(r'&sect;',r'§',html)
 html = re.sub(r'&hellip;',r'\dots',html)
 html = re.sub(r'&amp;',r'\&',html)
-html = re.sub(r'&dagger;',r'\dag',html)#crux
-html = re.sub(r'&#281;',r'\c{e}',html)#e caudata
-html = re.sub(r'&lt;',r'<',html)
-html = re.sub(r'&gt;',r'>',html)
+html = re.sub(r'&dagger;',r'\dag',html)  #crux
+html = re.sub(r'&#281;',r'\c{e}',html)  #e caudata
+html = re.sub(r'&#553;',r'\c{e}',html)  #e caudata
+
+#html = re.sub(r'_',r'\_',html)
 
 #------------------------------------
 #-------------- IMAGES --------------
 
-#renaming
+#renaming a folder of images:
 # dir | rename-item -NewName {$_.name -replace "image","image2-"}
  
 img = re.compile(r'<img.+?src="images/image(.+?)".+?>')
@@ -160,23 +165,28 @@ nb2 = ftnt2.subn(r'\\footnote{ftnt_ref\1i}', html)
 html = nb2[0]
 
 j = nb[1]+nb2[1]
-print(j)
+print('Total nb of footnotes: ', j)
 
 for i in range(1, j+1):
     string = '<p class="(c\d+\s?)+"><a href="#ftnt_ref{0}" id.*?</p>'.format(str(i))
     match = re.search(string, html, re.MULTILINE)
     if match:
-        ##delete markup in footnote
-        #footnote = match.group()
-        #footnote = re.sub(r'<p+?>',r'',footnote)
         html = re.sub('ftnt_ref'+str(i)+'i', match.group(), html)
     else:
-        print(i)
+        print('Failed footnote: ', i)
 
-#delete [] in footnotes and comments references
-html = re.sub(r'<a href="#ftnt.*?</a>', r'', html)
-html = re.sub(r'<a href="#ftnt_ref.*?</a>', r'', html)
-html = re.sub(r'<a href="#cmnt\d.*?</a>', r'', html)
+#delete in text [] references for footnotes and comments
+html = re.sub(r'<a href="#ftnt\d+.*?</a>', r'', html)
+html = re.sub(r'<a href="#cmnt\d+.*?</a>', r'', html)
+
+
+#delete footnotes and comments at the end
+#problem: it also deletes it in the actual footnotes
+
+# ftnt_del = re.compile(r'<p class="(c\d+\s?)+"><a href="#ftnt_ref(\d+?)" id.*?</p>')
+# cmnt_del = re.compile(r'<p class="(c\d+\s?)+"><a href="#cmnt_ref(\d+?)" id.*?</p>')
+# html = ftnt_del.sub(r'', html)
+# html = cmnt_del.sub(r'', html)
 
 
 #------------------------------------
@@ -201,7 +211,7 @@ html = re.sub(r'<tr.*?>(.+?)</td></tr>', r'\n\1 \\\\', html)
 html = re.sub(r'</td>', r' &', html)
 html = re.sub(r'<td class=.+?>', r'', html)
 
-#delete <p> elmts in cells?
+# delete <p> elmts in cells?
 
 
 #------------------------------------
@@ -215,22 +225,15 @@ html = re.sub(r'<a class=".+?>(.+?)</a>', r'\\url{\1}', html)
 #keep paragraph separations
 html = re.sub(r'<p', r'\n<p', html)
 
-#delete rest of html tags (but not TEI tags from the text...)
+#delete rest of html tags
 html = re.sub(r'<.+?>', r'', html)
-# #p
-# html = re.sub(r'<p class.+?>',r'',html)
-# html = re.sub(r'</p>',r'',html)
-# #span
-# html = re.sub(r'<span.*?>',r'',html)
-# html = re.sub(r'</span>',r'',html)
-# #others
-# html = re.sub(r'<sup>',r'',html)
-# html = re.sub(r'</sup>',r'',html)
 
-#if _ left, change to \_
-#html = re.sub(r'_',r'\_',html)
+#replace < > that were in the text
+html = re.sub(r'&lt;',r'<',html)
+html = re.sub(r'&gt;',r'>',html)
 
-new_gdoc_path = 'LATEX-'+filename+'.html'
+
+new_gdoc_path = 'LATEX-'+filename+'.txt'
 
 #save
 with open(new_gdoc_path, 'w', encoding='utf-8') as outfile:
